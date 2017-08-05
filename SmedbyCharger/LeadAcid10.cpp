@@ -18,7 +18,7 @@ LeadAcid::~LeadAcid	() {
 }
 
 // Subrutine to test pack for fast charge volt calulation
-  int QuickTest()                                                                  // Test pack for calculated fast charge volt. Return fast charge volt.
+ LeadAcid::QuickTest()                                                                  // Test pack for calculated fast charge volt. Return fast charge volt.
 {
 
 }
@@ -68,6 +68,8 @@ LeadAcid::Charge()                                                              
 
   Filter OVolt_Filtered(13);                    // Filter function for Output Voltage
   Filter OCurrent_Filtered(13);                 // Filter function for Output Current
+
+  vTaskDelay(100);
 
 
 }

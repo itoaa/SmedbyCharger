@@ -15,6 +15,7 @@
 #define LEADACID10_H_
 
 #include <Arduino.h>
+#include "Arduino_FreeRTOS.h"
 #include "Filter10.h"
 #include "Current20.h"
 #include "Volt20.h"
