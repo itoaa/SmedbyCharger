@@ -31,7 +31,7 @@ void Led::setOffTime(int OffTime)			// Set LED off time in ms
 	const TickType_t xDelay = OffTime / portTICK_PERIOD_MS;	// Set xDelay to one sec.
 	_OffTime = xDelay;
 }
-void Led::controleLed()						// Set LED off time in ms
+void Led::controleLed()						// Run an infinit look to make the led blink
 {
 	for (;;)
 	{
@@ -41,4 +41,13 @@ void Led::controleLed()						// Set LED off time in ms
 		vTaskDelay(_OffTime);
 
 	}
+}
+
+void Led::turnLedOn()						// Light up the led
+{
+	digitalWrite(_LedPin,HIGH);
+}
+void Led::turnLedOff()						// Turn off led
+{
+	digitalWrite(_LedPin,LOW);
 }

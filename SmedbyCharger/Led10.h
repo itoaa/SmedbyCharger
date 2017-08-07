@@ -20,6 +20,8 @@ private:
 public:
 	Led(int LedPin);					// Set up LED on pin LedPin
 	virtual ~Led();
+	void turnLedOn();						// Light up led. (used if contolleLed()-funktion never called)
+	void turnLedOff();						// Turn the led off. (used if contolleLed()-funktion never called)
 	void setOnTime(int OnTime);				// Set LED on time in ms
 	void setOffTime(int OffTime);			// Set LED off time in ms
 	void controleLed();						// Make Led blink

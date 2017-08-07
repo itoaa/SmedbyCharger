@@ -4,7 +4,6 @@
 #include "LeadAcid10.h"
 #include "Led10.h"
 
-
 /* ------------------------------------------------------------------
  * SmedbyCharger ver 3 utvecklas i Eclipse och byter kernel från
  * OS48 till FreeRTOS V9
@@ -20,25 +19,6 @@
 
 #include "HW11.h"
 #include "HW11CAN.h"
-
-// Define if the charger will start charging by its own.
-#define AutoCharge
-
-
-
-  // Declare standard tasks used on all hardwares
-void ChargeTask( void *pvParameters );
-void Led1Task( void *pvParameters );
-Led Led1(ChargeLed3);
-
-// Declare tasks that is hardware specific
-#ifdef SerialEnabled
-	void SerialTask( void *pvParameters );
-#endif
-
-#ifdef AutoCharge
-	void AutoChargeTask( void *pvParameters );
-#endif
 
 // Global Variables. Be carful when read and write (May need protection from wrong treatment).
 //	Change to Database task, updated with functions or other inter task communication.
@@ -134,15 +114,14 @@ void setPwmFrequency(int pin, int divisor) {
   }
 }
 
-void Led1Function(void *pvParameters)
+void Led3Function(void *pvParameters)
 {
-	(void) pvParameters;
-	//extern Led Led1;
-	Led1.setOnTime(500);
-	Led1.setOffTime(500);
+	int LedPin = (int)pvParameters ;
+	Led3.setOnTime(500);
+	Led3.setOffTime(500);
 	for (;;)
 	{
-		Led1.controleLed();
+		Led3.controleLed();
 
 	}
 }
@@ -158,16 +137,18 @@ void setup()
     Serial.begin(BaudRate);
 	while (!Serial)  { ; }						// wait for serial port to connect.
 
-
 	#ifdef SerialEnabled
 	xTaskCreate(
 	    SendSerialFunction
 	    ,  (const portCHAR *)"SerialTaskFunktion"   // A name just for humans
-	    ,  256  // This stack size can be checked & adjusted by reading the Stack Highwater
-	    ,  NULL
-	    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-	    ,  NULL );
+	    ,  256  		// This stack size can be checked & adjusted by reading the Stack Highwater
+	    ,  NULL		// Parameter
+	    ,  2  		// Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+	    ,  NULL );	// Handler
     #endif
+
+	Led1.turnLedOn();						// Make RED LED turn on
+	Led2.turnLedOff();						// Yellow LED off.
 
 	xTaskCreate(
 	    ChargeFunction
@@ -177,13 +158,13 @@ void setup()
 	    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	    ,  NULL );
 
-	xTaskCreate(
-		Led1Function
+	xTaskCreate(									// Make Green LED blink.
+		Led3Function
 		,  (const portCHAR *)"LED1RedTaskFunktion"   // A name just for humans
-		,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
-		,  NULL
-		,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-		,  NULL );
+		,  128  		// This stack size can be checked & adjusted by reading the Stack Highwater
+		,  NULL		// Parameter
+		,  2  		// Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+		,  NULL );	// Handler
 
     #ifdef AutoCharge
 	xTaskCreate(

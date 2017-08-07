@@ -28,7 +28,12 @@
   int  ChargeLed2 = 4;					// Yelow LED
   int  ChargeLed3 = 3;					// Green LED
   int  ButtonPin = 02;
-#endif
+
+  Led Led1(ChargeLed1);
+  Led Led2(ChargeLed2);
+  Led Led3(ChargeLed3);
+
+ #endif
 
 
 
