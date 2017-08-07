@@ -10,9 +10,9 @@
 
 Led::Led(int LedPin)
 {
-	_LedPin = LedPin;			// Set private variable to LED pin
-	pinMode(_LedPin, OUTPUT);	// Set LED-pin to output.
-	_OnTime = 1000 / portTICK_PERIOD_MS;				// Dont turn on LED
+	_LedPin = LedPin;						// Set private variable to LED pin
+	pinMode(_LedPin, OUTPUT);				// Set LED-pin to output.
+	_OnTime = 1000 / portTICK_PERIOD_MS;		// Dont turn on LED
 	_OffTime = 	1000 / portTICK_PERIOD_MS;	// Wait 1 sec, wake up and see if LED should be turned on.
 }
 

@@ -18,48 +18,12 @@
  #define SmedbyCharger11
 // #define SmedbyCharger11CAN
 
-// Define if the charger will start chargin by its own.
+#include "HW11.h"
+#include "HW11CAN.h"
+
+// Define if the charger will start charging by its own.
 #define AutoCharge
 
-// Setup Hardware constatns for SmedbyCharger PCB Ver 1.1 without CAN-Bus
-// *************************************************************************************************
-#ifdef  SmedbyCharger11					// Parameter definition for SmedbyCharger 1.1 without CAN buss.
-  #define     SerialEnabled				// Enable serial ouput on this hardware.
-  #define     BaudRate 115200			// Sepeed for cerial comunication
-  int  InputVoltPin  = A2;				// Pin used to measure Battery-volt
-  int  OutputCurrentPin = A0;			// Pin used to measure Motor-volt
-  int  OutputVoltPin = A1;				// Try to measure output-volt
-  int  Pin12V = A3;						// Pin used to measure 12 volt rail
-  int  TemperaturPin = 7;				// Pin used to measure mosfet-temperatur
-  int  pwmPin = 9;						// Pin used for PWM-charge-output
-  int  Temp_Measure_type = 2;			// Type 1 = NTC-resistor, 2 = DS1820 temp sensor.
-  int  Current_Measure_type = 3;		// Type 1 = 5A, 2 = 20A, 3 = 30A              ( Defines witch type of current sense sensor is used.
-  int  ChargeLed1 = 5;					// Red LED
-  int  ChargeLed2 = 4;					// Yelow LED
-  int  ChargeLed3 = 3;					// Green LED
-  int  ButtonPin = 02;
-#endif
-
-// Setup Hardware constatns for SmedbyCharger PCB Ver 1.1 with CAN-Bus
-// *************************************************************************************************
-#ifdef  SmedbyCharger11CAN                    // Parameter definition for SmedbyCharger 1.1 without CAN buss.
-  #define     SerialEnabled                 // Enable serial ouput on this hardware.
-  #define     BaudRate 115200               // Sepeed for cerial comunication
-  const byte  InputVoltPin  = PC4;          // Pin used to measure Battery-volt
-  const int   OutputCurrentPin = PC1;       // Pin used to measure Motor-volt
-  const byte  OutputVoltPin = PC2;          // Try to measure output-volt
-  const byte  Pin12V = PC3;              	// Pin used to measure 12 volt rail
-  const byte  TemperaturPin = PC5;          // Pin used to measure mosfet-temperatur
-  const byte  PotPin = PC0;                 // Pin used to measure pot-position
-  const byte  pwmPin = PD6;                 // Pin used for PWM-charge-output
-  const byte  Temp_Measure_type = 1;        // Type 1 = NTC-resistor, 2 = DS1820 temp sensor.
-  const int   Current_Measure_type = 3;     // Type 1 = 5A, 2 = 20A, 3 = 30A              ( Defines witch type of current sense sensor is used.
-	#define  ChargeLed1 = 5;           		// Red LED
-	#define  ChargeLed2 = 4;				// Yelow LED
-	#define  ChargeLed3 = 3;				// Green LED
-  int  ButtonPin = 02;
-
-  #endif
 
 
   // Declare standard tasks used on all hardwares
@@ -182,6 +146,7 @@ void Led1Function(void *pvParameters)
 
 	}
 }
+
 void setup()
 {
     analogReference(EXTERNAL);					// Set ADC reference voltage to external reference
