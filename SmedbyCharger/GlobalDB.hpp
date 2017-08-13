@@ -24,14 +24,8 @@ struct QueueStruct
 
 extern QueueHandle_t GlobalQ;
 
-#define ChargeMaxVoltIndex = 0;
-#define	ChargeMaxAmpIndex = 2;
-#define	ChargeMaxBatteryTempIndex = 4;
-#define ChargeMinBatteryTempIndex = 6;
-#define CharteMagTimeMinIndex = 8;
-static int ChargeFastChargeCutoffAmpIndex = 10;
 
-#define ChargeStateIndex = 12;
+
 struct GlobalVarStruct
 {
 	int ChargeMaxVolt;
@@ -81,11 +75,30 @@ struct GlobalVarStruct
 
 extern GlobalVarStruct GDB;
 
+class GlobalDB {
+private:
+	int getVar(int _ID);
+	void setVar(int _ID, int _Value);
+
+	QueueHandle_t _GlobalQ;
+public:
+	GlobalDB(QueueHandle_t _GlobalQ);								// Set up comm to GlobalDB
+	virtual ~GlobalDB();
+	void SetGlobal(int ID,int Value);		// Update global variable "ID" with value "Value"
+	int GetGlobal(int ID);					// Get Global Variable "ID". Returns "Value"
+	const int ChargeMaxVoltIndex = 0;
+	const int ChargeMaxAmpIndex = 2;
+	const int ChargeMaxBatteryTempIndex = 4;
+	const int ChargeMinBatteryTempIndex = 6;
+	const int CharteMagTimeMinIndex = 8;
+	const int ChargeFastChargeCutoffAmpIndex = 10;
+	const int ChargeStateIndex = 12;
+
+};
+
+
 void GlobalDBTask(void *pvParameters);
 
-void SetGlobal(int ID,int Value);		// Update global variable "ID" with value "Value"
-
-int GetGlobal(int ID, QueueHandle_t);					// Get Global Variable "ID". Returns "Value"
 
 
 

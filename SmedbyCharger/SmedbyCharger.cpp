@@ -22,11 +22,12 @@
 #include "HW11CAN.h"
 
 GlobalVarStruct GBD;
+QueueHandle_t GlobalQ;
 
 // Global Variables. Be carful when read and write (May need protection from wrong treatment).
 //	Change to Database task, updated with functions or other inter task communication.
 
-//int   GChargeStatus;
+// int   GChargeStatus;
 int   GBatteryVolt;
 int   GBatteryCurrent;
 int   Gpwm;
@@ -80,7 +81,7 @@ void ChargeFunction(void *pvParameters)
 	for (;;) // A Task shall never return or exit.
 	{
 		LeadAcid MyPack(1,75);              // Setup batterypack
-		SetGlobal(12,1);      // Set Charger to monitor;
+		GDB.(GDB.,1);  			    // Set Charger to monitor;
 		MyPack.Charge();                  // Start charger
 		vTaskDelay(xDelay);
 	}

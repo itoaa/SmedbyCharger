@@ -10,7 +10,9 @@
 
 LeadAcid::LeadAcid(int NumberOfCels, int AmpHour)
 {
-	// TODO Auto-generated constructor stub
+	QueueHandle_t GlobalQ;
+	GlobalDB GlobDB(GlobalQ);
+
 }
 
 LeadAcid::~LeadAcid	() {
@@ -35,7 +37,7 @@ int LeadAcid::Charge()                                                          
 
 
 // Global Chage parameters and max values
-  extern int GChargeStatus;
+//  extern int GChargeStatus;
   extern int GMaxChargeVolt;
   extern int GMaxChargeCurrent;
   extern int GMaxChargeBatteryTemp;
@@ -86,7 +88,7 @@ int LeadAcid::FastCharge()								// Charge task. Get instructions from global v
 
 
 	// Global Chage parameters and max values
-	  extern int GChargeStatus;
+//	  extern int GChargeStatus;
 	  extern int GMaxChargeVolt;
 	  extern int GMaxChargeCurrent;
 	  extern int GMaxChargeBatteryTemp;
@@ -119,10 +121,10 @@ int LeadAcid::FastCharge()								// Charge task. Get instructions from global v
 	  	  Filter OCurrent_Filtered(13);                 // Filter function for Output Current
 
 
-	GChargeStatus = 2;								// Changen to function to set global fastcharge
+	GlobalDB. (GlobDB.ChargeStateIndex,2);								// Changen to function to set global fastcharge
 	int FindCurrent = I_FAST / 100;
 
-  while ((GChargeStatus == 2)  )                                // While charge status = Fast and no error
+  while ((GlobDB.GetGlobal(GlobDB.ChargeStateIndex) == 2)  )                                // While charge status = Fast and no error
   {
       BatteryCurrent = Battery_current.readCurrent();           // Measure Battery Current:
       while (BatteryCurrent/100 != FindCurrent)                          // Loop until charge current == I_FAST, "soft start"

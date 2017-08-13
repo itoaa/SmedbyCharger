@@ -73,7 +73,11 @@ void GlobalDBTask(void *pvParameters)
 
 }
 
-void SetGlobal(int _ID, int _Value)
+GlobalDB::GlobalDB(QueueHandle_t _q)
+{
+	_GlobalQ = _q;
+}
+void GlobalDB::SetGlobal(int _ID, int _Value)
 {
 	QueueStruct messout;
 
@@ -84,15 +88,15 @@ void SetGlobal(int _ID, int _Value)
     xQueueSendToBack(GlobalQ,&messout,100);
 }
 
-int GetGlobal(int _ID, QueueHandle_t _Q)
+int GlobalDB::GetGlobal(int _ID)
 {
 	QueueStruct messin,messout;
 
 	messout.command = 10;
 	messout.ID = _ID;
-	messout.returnHandle = _Q;
+	messout.returnHandle = _GlobalQ;
     xQueueSendToBack(GlobalQ,&messout,100);
-	xQueueReceive(_Q,&messin,100);
+	xQueueReceive(_GlobalQ,&messin,100);
 	 return(messin.value);
 
 }

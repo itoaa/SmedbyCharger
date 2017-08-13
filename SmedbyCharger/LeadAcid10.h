@@ -19,10 +19,22 @@
 #include "Filter10.h"
 #include "Current20.h"
 #include "Volt20.h"
+#include "GlobalDB.hpp"
 
+extern QueueHandle_t LeadAcidQ;
+
+/*
+class GlobDB
+{
+	GlobalDB x;
+public:
+	GlobDB() : x(1) {};
+};
+*/
 class LeadAcid
 {
 private:
+	QueueHandle_t LadAcidQ;
 	int   _FastChargeVolt;
 	int   _FastChargemAmp;
 	int   _FastChargeMaxTime;
@@ -32,7 +44,7 @@ private:
 public:
 	LeadAcid(int NumberOfCels, int AmpHour);					// Number och cels in the pack (6 = 12V). AH of the pack.
 	virtual ~LeadAcid();
-	int Charge();												// Start Charger and wait for input.
+//	int Charge();												// Start Charger and wait for input.
 	int CheckIfBtteryConnetcted();
 	int QuickTest();											// Test pack för calculated fast charge volt. Return fast charge volt.
 	int Monitor();												// Monitor battery volt. Loop untill battery is found.
