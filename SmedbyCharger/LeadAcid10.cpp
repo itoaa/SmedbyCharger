@@ -18,13 +18,13 @@ LeadAcid::~LeadAcid	() {
 }
 
 // Subrutine to test pack for fast charge volt calulation
- LeadAcid::QuickTest()                                                                  // Test pack for calculated fast charge volt. Return fast charge volt.
+ int LeadAcid::QuickTest()                                                                  // Test pack for calculated fast charge volt. Return fast charge volt.
 {
-
+	 return(0);
 }
 
 // Subrutine to quick charge Lead Acid battery
-LeadAcid::Charge()                                                                // Charge task. Get instructions from global variables.
+int LeadAcid::Charge()                                                                // Charge task. Get instructions from global variables.
 {
   extern int OutputCurrentPin;
   extern int Current_Measure_type;
@@ -71,11 +71,11 @@ LeadAcid::Charge()                                                              
 
   vTaskDelay(100);
 
-
+return(0);
 }
 
 // Subrutine to quick charge Lead Acid battery
-LeadAcid::FastCharge()								// Charge task. Get instructions from global variables.
+int LeadAcid::FastCharge()								// Charge task. Get instructions from global variables.
 {
 	  extern int OutputCurrentPin;
 	  extern int Current_Measure_type;
@@ -156,4 +156,5 @@ LeadAcid::FastCharge()								// Charge task. Get instructions from global varia
       }                                                           // I_FAST is set now.
 
    }                                                // Fast charge ends
+return(0);
 }
