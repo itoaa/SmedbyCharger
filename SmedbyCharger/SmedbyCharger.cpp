@@ -37,11 +37,11 @@ void SendSerialFunction(void *pvParameters)
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS;	// Set xDelay to one sec.
 	for (;;) // A Task shall never return or exit.
 	{
-        mySerial.updateBatteryVolt(GBatteryVolt);
-        mySerial.updateBatteryCurrent(GBatteryCurrent);   // Update _BatteryCurrent private variable
+        mySerial.updateBatteryVolt( Global_db_get( ChargerOutVolt,Serial_q) );
+        mySerial.updateBatteryCurrent( Global_db_get( ChargerOutAmp,Serial_q) );   // Update _BatteryCurrent private variable
         mySerial.updateBatteryTemp(25);                   // Update _BatteryTemp private variable
-        mySerial.updateInputVolt(GInputVolt);             // Update _InputVoltage private variable
-        mySerial.updatePWM(Gpwm);                         // Update _pwm private variable
+        mySerial.updateInputVolt(Global_db_get( ChargerInVolt,Serial_q) );             // Update _InputVoltage private variable
+        mySerial.updatePWM( Global_db_get( ChargerPWM,Serial_q ) );                         // Update _pwm private variable
         mySerial.updatemAh(2200);                         // Update _mAh private variable
         mySerial.sendSerial();
 

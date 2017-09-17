@@ -16,26 +16,26 @@
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
 
-	int	ChargerState;
-	int ChargerPWM;
-	int	ChargerOutVolt;
-	int ChargerOutAmp;
-	int ChargerTemp1;
-	int ChargerExternalTemp1;
-	int	ChargerInVolt;
-	int ChargerInAmp;
+	const int	ChargerState = 0;
+	const int 	ChargerPWM = 2;
+	const int	ChargerOutVolt = 4;
+	const int 	ChargerOutAmp = 6;
+	const int 	ChargerTemp1 = 8;
+	const int 	ChargerExternalTemp1 = 10;
+	const int	ChargerInVolt = 12;
+	const int 	ChargerInAmp = 14;
 
 
 struct GlobalVarStruct
 {
-	int	ChargerState = 0;
-	int ChargerPWM = 2;
-	int	ChargerOutVolt = 4;
-	int ChargerOutAmp = 6;
-	int ChargerTemp1 = 8;
-	int ChargerExternalTemp1 = 10;
-	int	ChargerInVolt = 12;
-	int ChargerInAmp = 14;
+	int	ChargerState;
+	int ChargerPWM;
+	int	ChargerOutVolt;
+	int ChargerOutAmp6;
+	int ChargerTemp1;
+	int ChargerExternalTemp1;
+	int	ChargerInVolt;
+	int ChargerInAmp;
 };
 
 class ChargeDB {
