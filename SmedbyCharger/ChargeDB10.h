@@ -40,22 +40,14 @@ struct GlobalVarStruct
 
 class ChargeDB {
 public:
-	ChargeDB();								// Set up comm to ChargeDB
+	ChargeDB();									// Set up comm to ChargeDB
 	virtual ~ChargeDB();
-	void Set_var(int ID,int Value);		// Update global variable "ID" with value "Value"
-	int Get_var(int ID);					// Get Global Variable "ID". Returns "Value"
+	void Set_var(int ID,int Value);				// Update global variable "ID" with value "Value"
+	int Get_var(int ID);							// Get Global Variable "ID". Returns "Value"
 
 	void Set_index(int Index,char Value);		// Update global variable "ID" with value "Value"
 	char Get_index(int Index);					// Get Global Variable "ID". Returns "Value"
 
-	int test();
-	const int ChargeMaxVoltIndex = 0;
-	const int ChargeMaxAmpIndex = 2;
-	const int ChargeMaxBatteryTempIndex = 4;
-	const int ChargeMinBatteryTempIndex = 6;
-	const int CharteMagTimeMinIndex = 8;
-	const int ChargeFastChargeCutoffAmpIndex = 10;
-	const int ChargeStateIndex = 12;
 private:
 	GlobalVarStruct Global_vars;
 
