@@ -3,7 +3,8 @@
 #include "LogViewSerial20.h"
 #include "LeadAcid10.h"
 #include "Led10.h"
-#include "GlobalDB.hpp"
+#include "ChargeDB10.h"
+#include "DBQuery.h"
 
 /* ------------------------------------------------------------------
  * SmedbyCharger ver 3 utvecklas i Eclipse och byter kernel från
@@ -22,24 +23,12 @@
 #include "HW11CAN.h"
 
 GlobalVarStruct GBD;
-QueueHandle_t GlobalQ;
+//QueueHandle_t GlobalQ;
 
 // Global Variables. Be carful when read and write (May need protection from wrong treatment).
 //	Change to Database task, updated with functions or other inter task communication.
 
-// int   GChargeStatus;
-int   GBatteryVolt;
-int   GBatteryCurrent;
-int   Gpwm;
-int   GInputVolt;
-
-// Global Chage parameters and max values
-int GMaxChargeVolt;
-int GMaxChargeCurrent;
-int GMaxChargeBatteryTemp;
-int GMinChargeBatteryTemp;
-int GMaxChargeTimeMin;
-int GFastChargeCutofCurrent;
+QueueHandle_t Global_db_q,Serial_q,charger_q;
 
 void SendSerialFunction(void *pvParameters)
 {
@@ -77,11 +66,13 @@ void AutoChargeFunction(void *pvParameters)
 void ChargeFunction(void *pvParameters)
 {
 	(void) pvParameters;
+
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS;	// Set xDelay to one sec.
 	for (;;) // A Task shall never return or exit.
+
 	{
 		LeadAcid MyPack(1,75);              // Setup batterypack
-		GDB.(GDB.,1);  			    // Set Charger to monitor;
+		Global_db_set(ChargerState,1);  			    // Set Charger to monitor;
 		MyPack.Charge();                  // Start charger
 		vTaskDelay(xDelay);
 	}

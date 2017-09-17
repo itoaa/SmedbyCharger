@@ -10,8 +10,8 @@
 
 LeadAcid::LeadAcid(int NumberOfCels, int AmpHour)
 {
-	QueueHandle_t GlobalQ;
-	GlobalDB GlobDB(GlobalQ);
+	int w = 0;
+//	GlobalDB ChargeDB(();
 
 }
 
@@ -121,10 +121,10 @@ int LeadAcid::FastCharge()								// Charge task. Get instructions from global v
 	  	  Filter OCurrent_Filtered(13);                 // Filter function for Output Current
 
 
-	GlobalDB. (GlobDB.ChargeStateIndex,2);								// Changen to function to set global fastcharge
+	Global_db_set(ChargerState,2);								// Changen to function to set global fastcharge
 	int FindCurrent = I_FAST / 100;
 
-  while ((GlobDB.GetGlobal(GlobDB.ChargeStateIndex) == 2)  )                                // While charge status = Fast and no error
+  while ( Global_db_get(ChargerState,LadAcidQ) == 2)                                  // While charge status = Fast and no error
   {
       BatteryCurrent = Battery_current.readCurrent();           // Measure Battery Current:
       while (BatteryCurrent/100 != FindCurrent)                          // Loop until charge current == I_FAST, "soft start"
