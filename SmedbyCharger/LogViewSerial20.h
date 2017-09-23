@@ -30,6 +30,7 @@ struct __attribute__((packed)) RPageVarsStruct {
 class LogViewSerial {
 private:
 	RPageVarsStruct RTP;
+	void sPrint(char str[20]);
 public:
 	LogViewSerial(word BaudRate);
 	virtual ~LogViewSerial();

@@ -50,22 +50,32 @@ void LogViewSerial::sendSerial()
 {
 	// print all variables in Logview styel to serialport.
 	// Need to mach Logview-ini-file.
-	Serial.print("$1;1;");
-	Serial.print(RTP.seconds);
-	Serial.print(";");
-	Serial.print(RTP.BatteryVolt);
-	Serial.print(";");
-	Serial.print(RTP.BatteryCurrent);
-	Serial.print(";");
-	Serial.print(RTP.BatteryTemp);
-	Serial.print(";");
-	Serial.print(RTP.InputVolt);
-	Serial.print(";");
-	Serial.print(RTP.Pwm);
-	Serial.print(";");
-	Serial.print(RTP.mAh);
-	Serial.println(";0");
+	sPrint("$1;1;");
+	Serial.write(RTP.seconds);
+	sPrint(";");
+	Serial.write(RTP.BatteryVolt);
+	sPrint(";");
+	Serial.write(RTP.BatteryCurrent);
+	sPrint(";");
+	Serial.write(RTP.BatteryTemp);
+	sPrint(";");
+	Serial.write(RTP.InputVolt);
+	sPrint(";");
+	Serial.write(RTP.Pwm);
+	sPrint(";");
+	Serial.write(RTP.mAh);
+	sPrint(";0");
 
 	RTP.seconds++;
 
  }
+
+
+void LogViewSerial::sPrint(char str[20])
+{
+
+for ( int i = 0; str[i] != '\0' ; ++i )
+	{
+		Serial.write(str[i]);
+	}
+}

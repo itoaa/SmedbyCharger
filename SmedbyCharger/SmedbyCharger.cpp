@@ -1,7 +1,8 @@
+#include "FreeRTOSConfig.h"
+
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
 #include "LogViewSerial20.h"
-#include "LeadAcid10.h"
 #include "Led10.h"
 #include "ChargeDB10.h"
 #include "DBQuery.h"
@@ -20,15 +21,65 @@
 // #define SmedbyCharger11CAN
 
 #include "HW11.h"
-#include "HW11CAN.h"
+//#include "HW11CAN.h"
 
 GlobalVarStruct GBD;
-//QueueHandle_t GlobalQ;
 
-// Global Variables. Be carful when read and write (May need protection from wrong treatment).
-//	Change to Database task, updated with functions or other inter task communication.
+QueueHandle_t Global_db_q,Serial_q,Charger_q;
 
-QueueHandle_t Global_db_q,Serial_q,charger_q;
+void Global_db_task(void *pvParameters)
+{
+	// Task to manage GlobalDatabase (GlobalDB). Uses class DB to store data.
+	// Class DBQueue is used for querying GlobalDB.
+	// Queue Global_DB_Q is used to get and set values.
+
+	(void) pvParameters;
+	const  TickType_t xDelay = 5000 / portTICK_PERIOD_MS;	  // Set xDelay to one sec.
+	Queue_struct messin,messout;
+	ChargeDB myDB;
+
+	messout.command = 11;
+	messout.value = 0;
+	messin.command = 0;
+	messin.value = 0;
+
+
+	for (;;) // A Task shall never return or exit.
+	{
+		if (xQueueReceive(Global_db_q,&messin,xDelay))
+		{
+			if (messin.command == 10)						// Some process ask for a value
+			{
+				messout.value = myDB.Get_var(messin.ID);
+				messout.command = 11;
+				messout.value = myDB.Get_var(messin.ID);
+				messout.ID = messin.ID;
+
+				xQueueSendToBack(messin.returnHandle,&messout,100);
+			}
+			if (messin.command == 11)						// Some process sent a value
+			{
+				myDB.Set_var(messin.ID,messin.value);
+			}
+
+			if (messin.command == 20)						// Some process ask for a value
+			{
+				messout.value = myDB.Get_var(messin.ID);
+				messout.command = 21;
+				messout.value = myDB.Get_var(messin.ID);
+				messout.ID = messin.ID;
+
+				xQueueSendToBack(messin.returnHandle,&messout,100);
+			}
+			if (messin.command == 21)						// Some process sent a value
+			{
+				myDB.Set_var(messin.ID,messin.value);
+			}
+
+		}
+	}
+
+}
 
 void SendSerialFunction(void *pvParameters)
 {
@@ -37,11 +88,11 @@ void SendSerialFunction(void *pvParameters)
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS;	// Set xDelay to one sec.
 	for (;;) // A Task shall never return or exit.
 	{
-        mySerial.updateBatteryVolt( Global_db_get( ChargerOutVolt,Serial_q) );
-        mySerial.updateBatteryCurrent( Global_db_get( ChargerOutAmp,Serial_q) );   // Update _BatteryCurrent private variable
+        mySerial.updateBatteryVolt( Global_db_index_get( ChargerOutVolt,Serial_q) );
+        mySerial.updateBatteryCurrent( Global_db_index_get( ChargerOutAmp,Serial_q) );   // Update _BatteryCurrent private variable
         mySerial.updateBatteryTemp(25);                   // Update _BatteryTemp private variable
-        mySerial.updateInputVolt(Global_db_get( ChargerInVolt,Serial_q) );             // Update _InputVoltage private variable
-        mySerial.updatePWM( Global_db_get( ChargerPWM,Serial_q ) );                         // Update _pwm private variable
+        mySerial.updateInputVolt(Global_db_index_get( ChargerInVolt,Serial_q) );             // Update _InputVoltage private variable
+        mySerial.updatePWM( Global_db_index_get( ChargerPWM,Serial_q ) );                         // Update _pwm private variable
         mySerial.updatemAh(2200);                         // Update _mAh private variable
         mySerial.sendSerial();
 
@@ -68,12 +119,18 @@ void ChargeFunction(void *pvParameters)
 	(void) pvParameters;
 
 	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS;	// Set xDelay to one sec.
+
+	Global_db_index_set(ChargerPWM,(char)100);
+	Global_db_index_set(ChargerOutVolt,(char)24);
+/*	Global_db_index_set(ChargerOutAmp,(char)3);
+	Global_db_index_set(ChargerTemp1,(char)24);
+	Global_db_index_set(ChargerExternalTemp1,(char)80);
+	Global_db_index_set(ChargerInVolt,(char)19);
+	Global_db_index_set(ChargerInAmp,(char)1); */
 	for (;;) // A Task shall never return or exit.
 
 	{
-		LeadAcid MyPack(1,75);              // Setup batterypack
-		Global_db_set(ChargerState,1);  			    // Set Charger to monitor;
-		MyPack.Charge();                  // Start charger
+		Global_db_index_set(ChargerState,1);  			    // Set Charger to monitor;
 		vTaskDelay(xDelay);
 	}
 
@@ -130,10 +187,16 @@ void setup()
     setPwmFrequency(pwmPin, 1);					// pin,prescaler   pin9 default freq 32k.
     // setPwmFrequency(pwmPin, 8);					// pin,prescaler   pin9 default freq 3.9k.
 
-    Serial.begin(BaudRate);
+    Serial.begin(115200);
 	while (!Serial)  { ; }						// wait for serial port to connect.
+	Serial.print("Begin");
+	Global_db_q = xQueueCreate(3,sizeof(Queue_struct));
+	Serial_q = xQueueCreate(1 , sizeof(Queue_struct ) );
+	Charger_q = xQueueCreate(1 , sizeof(Queue_struct ) );
 
-	#ifdef SerialEnabled
+
+//	#ifdef SerialEnabled
+
 	xTaskCreate(
 	    SendSerialFunction
 	    ,  (const portCHAR *)"SerialTaskFunktion"   // A name just for humans
@@ -141,7 +204,16 @@ void setup()
 	    ,  NULL		// Parameter
 	    ,  2  		// Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	    ,  NULL );	// Handler
-    #endif
+//     #endif
+
+	xTaskCreate(
+	    Global_db_task
+	    ,  (const portCHAR *)"GlobalDBTask"   // A name just for humans
+	    ,  180  // This stack size can be checked & adjusted by reading the Stack Highwater
+	    ,  NULL
+	    ,  3  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+	    ,  NULL );
+
 
 	Led1.turnLedOn();						// Make RED LED turn on
 	Led2.turnLedOff();						// Yellow LED off.
@@ -149,7 +221,7 @@ void setup()
 	xTaskCreate(
 	    ChargeFunction
 	    ,  (const portCHAR *)"ChargeFunktion"   // A name just for humans
-	    ,  256  // This stack size can be checked & adjusted by reading the Stack Highwater
+	    ,  140  // This stack size can be checked & adjusted by reading the Stack Highwater
 	    ,  NULL
 	    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	    ,  NULL );
@@ -157,7 +229,7 @@ void setup()
 	xTaskCreate(									// Make Green LED blink.
 		Led3Function
 		,  (const portCHAR *)"LED1RedTaskFunktion"   // A name just for humans
-		,  128  		// This stack size can be checked & adjusted by reading the Stack Highwater
+		,  64  		// This stack size can be checked & adjusted by reading the Stack Highwater
 		,  NULL		// Parameter
 		,  2  		// Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 		,  NULL );	// Handler
