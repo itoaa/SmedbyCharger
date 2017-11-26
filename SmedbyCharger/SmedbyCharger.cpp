@@ -14,6 +14,9 @@
  * Version 3.0 kommer att ta ett nytt grepp om globala variabler och
  * ersätta dessa med en databas-process som övriga processer kan kommunisera
  * med för att få tillgång till data i systemet.
+ * rev. För att spara minne  kommer bara två prosesser att användas.
+ * 1 "Real time" där laddare och DB ligger
+ * 2 "Interactive" där kommunikation till CAN och/eller Serieport ordnas.
  */
 
 // Define for witch hardware to compile
@@ -27,14 +30,15 @@ GlobalVarStruct GBD;
 
 QueueHandle_t Global_db_q,Serial_q,Charger_q;
 
-void Global_db_task(void *pvParameters)
+void Real_time_task(void *pvParameters)
 {
-	// Task to manage GlobalDatabase (GlobalDB). Uses class DB to store data.
+	// Task to manage real time things and GlobalDatabase (GlobalDB).
+	// Uses class DB to store data.
 	// Class DBQueue is used for querying GlobalDB.
 	// Queue Global_DB_Q is used to get and set values.
 
 	(void) pvParameters;
-	const  TickType_t xDelay = 5000 / portTICK_PERIOD_MS;	  // Set xDelay to one sec.
+	const  TickType_t xDelay = 100 / portTICK_PERIOD_MS;	  // Set xDelay to one sec.
 	Queue_struct messin,messout;
 	ChargeDB myDB;
 
@@ -43,9 +47,11 @@ void Global_db_task(void *pvParameters)
 	messin.command = 0;
 	messin.value = 0;
 
-
 	for (;;) // A Task shall never return or exit.
 	{
+
+
+// *************  Handle Queue. when other processes need info from global db. *****************
 		if (xQueueReceive(Global_db_q,&messin,xDelay))
 		{
 			if (messin.command == 10)						// Some process ask for a value
@@ -81,7 +87,7 @@ void Global_db_task(void *pvParameters)
 
 }
 
-void SendSerialFunction(void *pvParameters)
+void Interactive_task(void *pvParameters)
 {
 	(void) pvParameters;
 	LogViewSerial mySerial(BaudRate);
@@ -99,41 +105,6 @@ void SendSerialFunction(void *pvParameters)
         vTaskDelay(xDelay);
 
 	}
-}
-
-void AutoChargeFunction(void *pvParameters)
-{
-	(void) pvParameters;
-	const TickType_t xDelay = 2000 / portTICK_PERIOD_MS;	// Set xDelay to one sec.
-
-	for (;;) // A Task shall never return or exit.
-	{
-		vTaskDelay(xDelay);
-
-	}
-
-}
-
-void ChargeFunction(void *pvParameters)
-{
-	(void) pvParameters;
-
-	const TickType_t xDelay = 1000 / portTICK_PERIOD_MS;	// Set xDelay to one sec.
-
-	Global_db_index_set(ChargerPWM,(char)100);
-	Global_db_index_set(ChargerOutVolt,(char)24);
-/*	Global_db_index_set(ChargerOutAmp,(char)3);
-	Global_db_index_set(ChargerTemp1,(char)24);
-	Global_db_index_set(ChargerExternalTemp1,(char)80);
-	Global_db_index_set(ChargerInVolt,(char)19);
-	Global_db_index_set(ChargerInAmp,(char)1); */
-	for (;;) // A Task shall never return or exit.
-
-	{
-		Global_db_index_set(ChargerState,1);  			    // Set Charger to monitor;
-		vTaskDelay(xDelay);
-	}
-
 }
 
 void setPwmFrequency(int pin, int divisor) {
@@ -167,17 +138,6 @@ void setPwmFrequency(int pin, int divisor) {
   }
 }
 
-void Led3Function(void *pvParameters)
-{
-	int LedPin = (int)pvParameters ;
-	Led3.setOnTime(500);
-	Led3.setOffTime(500);
-	for (;;)
-	{
-		Led3.controleLed();
-
-	}
-}
 
 void setup()
 {
@@ -198,7 +158,7 @@ void setup()
 //	#ifdef SerialEnabled
 
 	xTaskCreate(
-	    SendSerialFunction
+	    Interactive_task
 	    ,  (const portCHAR *)"SerialTaskFunktion"   // A name just for humans
 	    ,  256  		// This stack size can be checked & adjusted by reading the Stack Highwater
 	    ,  NULL		// Parameter
@@ -207,42 +167,12 @@ void setup()
 //     #endif
 
 	xTaskCreate(
-	    Global_db_task
+	    Real_time_task
 	    ,  (const portCHAR *)"GlobalDBTask"   // A name just for humans
 	    ,  180  // This stack size can be checked & adjusted by reading the Stack Highwater
 	    ,  NULL
 	    ,  3  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	    ,  NULL );
-
-
-	Led1.turnLedOn();						// Make RED LED turn on
-	Led2.turnLedOff();						// Yellow LED off.
-
-	xTaskCreate(
-	    ChargeFunction
-	    ,  (const portCHAR *)"ChargeFunktion"   // A name just for humans
-	    ,  140  // This stack size can be checked & adjusted by reading the Stack Highwater
-	    ,  NULL
-	    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-	    ,  NULL );
-
-	xTaskCreate(									// Make Green LED blink.
-		Led3Function
-		,  (const portCHAR *)"LED1RedTaskFunktion"   // A name just for humans
-		,  64  		// This stack size can be checked & adjusted by reading the Stack Highwater
-		,  NULL		// Parameter
-		,  2  		// Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-		,  NULL );	// Handler
-
-    #ifdef AutoCharge
-	xTaskCreate(
-	    AutoChargeFunction
-	    ,  (const portCHAR *)"AutoStartChargeFunktion"   // A name just for humans
-	    ,  128  // This stack size can be checked & adjusted by reading the Stack Highwater
-	    ,  NULL
-	    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-	    ,  NULL );
-    #endif
 }
 
 void loop()
