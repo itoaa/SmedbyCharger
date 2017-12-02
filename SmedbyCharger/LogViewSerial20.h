@@ -14,23 +14,34 @@
 
 #ifndef LOGVIEWSERIAL20_H_
 #define LOGVIEWSERIAL20_H_
-#include<Arduino.h>
+#include <Arduino.h>
+#include <stdio.h>
+#include <string.h>
+
 
 // The structure of the realtime data sent on the Serial port to LogViewer
 struct __attribute__((packed)) RPageVarsStruct {
-    int     seconds;                        	// Number of seconds from Charge start
+
+	int		state;								// Charger state. 1 = Fastcharge, 2= Slowcharge, 3 = monitor
+	int     seconds;                        	// Number of seconds from Charge start
     int     BatteryVolt;                    	// Battery Volt
     int     BatteryCurrent;                 	// ADC value for TPS measurement
     int     BatteryTemp;                    	// Output current.
     int     InputVolt;                     	// Power supply volt
     int     Pwm;                            	// Pwm (0-1024)
     int32_t     mAh;                         // Energy.
+    int		BMS;							// bool if BMS has triggered an over volt event.
 };
 
 class LogViewSerial {
 private:
 	RPageVarsStruct RTP;
 	void sPrint(char str[20]);
+	void sPrint2(String str);
+	void sPrint3(char str3[]);
+	void sPrint3(int int1);
+
+
 public:
 	LogViewSerial(word BaudRate);
 	virtual ~LogViewSerial();

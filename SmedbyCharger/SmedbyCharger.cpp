@@ -6,6 +6,8 @@
 #include "Led10.h"
 #include "ChargeDB10.h"
 #include "DBQuery.h"
+#include <WString.h>
+
 
 /* ------------------------------------------------------------------
  * SmedbyCharger ver 3 utvecklas i Eclipse och byter kernel från
